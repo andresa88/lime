@@ -29,7 +29,11 @@ class HTML5HTTPRequest {
 	private static var originHostname:String;
 	private static var originPort:String;
 	private static var originProtocol:String;
-	private static var requestLimit = 4;
+	#if openfljs
+	private static var requestLimit;
+	#else
+	private static var requestLimit = #if (http2) 256 #else 4 #end;
+	#end
 	private static var requestQueue = new List<QueueItem> ();
 	private static var supportsImageProgress:Null<Bool>;
 	
@@ -38,6 +42,18 @@ class HTML5HTTPRequest {
 	private var request:XMLHttpRequest;
 	private var validStatus0:Bool;
 		
+	#if openfljs
+	private static function __init__ () {
+		
+		requestLimit = 4;
+		if (untyped __js__("typeof http2 != 'undefined' && http2")) {
+			requestLimit = 256;
+		}
+		
+	}
+	
+	#end
+	
 	public function new () {
 		
 		 validStatus0 = ~/Tizen/gi.match (Browser.window.navigator.userAgent);
